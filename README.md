@@ -63,10 +63,9 @@ Sprint_n2/
 ├── helpers/
 │   └── email_generator.py   # Генерация email через UUID
 ├── test/                   # Пять модулей, пять классов, семь тестов
-├── docs/
-│   └── api_research.md      # Запросы и ответы API
 ├── conftest.py              # Фикстуры и очистка объявлений
 ├── config.py                # Адрес API и тайм-аут запросов
+├── urls.py                  # Эндпоинты API
 ├── data.py                  # Тестовые данные и ожидаемые сообщения
 ├── pytest.ini
 ├── requirements.txt

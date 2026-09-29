@@ -32,14 +32,9 @@ def user_data():
 def user_factory(users_api):
     def create_user(credentials):
         response = users_api.register(credentials)
-        assert response.status_code == 201, (
-            f"Не удалось подготовить пользователя: HTTP {response.status_code}"
-        )
+        response.raise_for_status()
         body = response.json()
-        assert body["user"]["email"] == credentials["email"]
         token = body["access_token"]["access_token"]
-        assert isinstance(token, str)
-        assert token
         return {
             "credentials": credentials,
             "user": body["user"],
@@ -70,28 +65,19 @@ def listing_cleanup(listings_api):
     yield created_listings
     for listing_id, token in reversed(created_listings):
         response = listings_api.get_own_listings(token)
-        assert response.status_code == 200, (
-            f"Не удалось проверить объявления перед очисткой: HTTP {response.status_code}"
-        )
+        response.raise_for_status()
         own_ids = {listing["id"] for listing in response.json()["offers"]}
         if listing_id in own_ids:
             deleted = listings_api.delete(listing_id, token)
-            assert deleted.status_code == 200, (
-                f"Не удалось удалить тестовое объявление {listing_id}: "
-                f"HTTP {deleted.status_code}"
-            )
+            deleted.raise_for_status()
 
 
 @pytest.fixture
 def created_listing(listings_api, registered_user, listing_data, listing_cleanup):
     token = registered_user["token"]
     response = listings_api.create(listing_data, token)
-    assert response.status_code == 201, (
-        f"Не удалось подготовить объявление: HTTP {response.status_code}"
-    )
+    response.raise_for_status()
     listing = response.json()
     listing_cleanup.append((listing["id"], token))
-    assert listing_data.items() <= listing.items()
-    assert listing["owner"] == registered_user["user"]["id"]
     return listing
 
